@@ -5,13 +5,7 @@ require(ggplot2)
 require(mvtnorm)
 
 ##Cargar datos
-
-Emigx<-read.csv("Emigx.csv",header=T)
-fx5<-read.csv("fecu.csv",header=T)
-Inmx<-read.csv("Inmx.csv",header=T)
-mx<-read.csv("mx.csv",header=T)
-Nx<-read.csv("Nx.csv",header=T)
-Px<-read.csv("Px.csv",header=T)
+load("Jalisco.RData")
 
 #Renombrar variables
 
@@ -24,14 +18,14 @@ names(Px)[3:49]<-c(1970:2016)
 #quitar renglon columna de mx
 mx <- mx [,-c(1,2)]
 
-#Pasar edades quinquenales a edad simples por medio del método Heather Booth
+#Pasar edades quinquenales a edad simples por medio del mÃ©todo Heather Booth
 asfr<-function (fx5,year){ 
   fx0<-fx5[fx5$Year==year,"fx"]
   
   Fx<-5*cumsum(fx0)
   #Es oigual al ultiimo elemento de la suma acumulada
   TGF<-Fx[7]
-  #proporcion de las fecundidades acumuluadas con respecto a la TGF (hasta los 30 años se ha acumulado el 70% 
+  #proporcion de las fecundidades acumuluadas con respecto a la TGF (hasta los 30 aÃ±os se ha acumulado el 70% 
   FxF<-Fx/TGF
   
   #Definir las edades. Secuencia que comienza en 17 al 47, marca de clase de edades quinquenales el cual es el punto medio
@@ -97,22 +91,22 @@ ixt.M<-ixt.M[1:(dim(ixt.M)[1]-35),]
 ext.F<-ext.F[1:(dim(ext.F)[1]-35),]
 ext.M<-ext.M[1:(dim(ext.M)[1]-35),]
 
-#Parametros para la función Lee-Carter
+#Parametros para la funciÃ³n Lee-Carter
 edades <- dim(mx) [1] #### igual a 220 grupos por edad
 edades.fec <- dim(fx)[1]
 tiempo.mort <- dim(mx)[2]
-añoini.mort <- 1970
-añoini.fec <- 1990
-tiempo.fec <- dim(fx)[2] ## años para utilizar la proyeccion de la fecundidad
-añobase <- 2015
+aÃ±oini.mort <- 1970
+aÃ±oini.fec <- 1990
+tiempo.fec <- dim(fx)[2] ## aÃ±os para utilizar la proyeccion de la fecundidad
+aÃ±obase <- 2015
 horizonte <- 35
-añofin <- añobase+horizonte
+aÃ±ofin <- aÃ±obase+horizonte
 tiempo.tot <- tiempo.mort+horizonte
 edades.mig <- dim(ixt.F)[1]
 tiempo.mig <- dim(ixt.F)[2]
-añoini.mig<-1995
+aÃ±oini.mig<-1995
 
-#Función para proyectar por medio de Lee-Carter
+#FunciÃ³n para proyectar por medio de Lee-Carter
 lc.svd <- function(m, edades, tiempo1, tiempo2, ln){
   if (ln == TRUE){
     lm<-log(m)
@@ -212,7 +206,7 @@ tabmort <- function(m,edades,sex){
                   px=px, lx=lx, dx=dx, Lx=Lx, Tx=Tx, ex=ex, Sx=Sx)
 }
 
-#Función para cada componente
+#FunciÃ³n para cada componente
 lc.mort <- lc.svd(mx, edades,
                   tiempo1 =1 ,
                   tiempo2 =tiempo.mort,
@@ -290,7 +284,7 @@ exF.for<-rbind(exp(lc.enmF$ax + lc.enmF$bx[,1]%*%t(etF.for$mean)), matrix(0,35,3
 exM.for<-rbind(exp(lc.enmM$ax + lc.enmM$bx[,1]%*%t(etM.for$mean)), matrix(0,35,35))
 
 
-#Poblaciones de mujeres conciliadas a inicio de año
+#Poblaciones de mujeres conciliadas a inicio de aÃ±o
 PxF<-Px[Px$Sexo=="Mujeres",-c(1,2)]
 PxM<-Px[Px$Sexo=="Hombres",-c(1,2)]
 
@@ -319,7 +313,7 @@ BM<-vector(length=35)
 
 for(i in 2:36){
   
-  ####Edades intermedias 1 a 108 años
+  ####Edades intermedias 1 a 108 aÃ±os
   PxF.for[2:109,i]<-(PxF.for[1:108,i-1]+
                        0.5*NxF.for[1:108,i-1]*ixF.for[1:108,i-1])*SxF.for[1:108,i-1]+
     NxF.for[2:109,i-1]*0.5*ixF.for[2:109,i-1]- NxF.for[1:108,i-1]*exF.for[1:108,i-1]
@@ -347,7 +341,7 @@ for(i in 2:36){
     NxF.for[1,i-1]*0.5*ixF.for[1,i-1]-
     NxF.for[1,i-1]*exF.for[1,i-1]
   
-  #Poblacion a mitad año
+  #Poblacion a mitad aÃ±o
   NxF.for[,i]<-0.5*(PxF.for[,i-1]+PxF.for[,i])
   
 }
@@ -357,7 +351,7 @@ for(i in 2:36){
 
 for(i in 2:36){
   
-  ####Edades intermedias 1 a 108 años
+  ####Edades intermedias 1 a 108 aÃ±os
   PxM.for[2:109,i]<-(PxM.for[1:108,i-1]+
                        0.5*NxM.for[1:108,i-1]*ixM.for[1:108,i-1])*SxM.for[1:108,i-1]+
     NxM.for[2:109,i-1]*0.5*ixM.for[2:109,i-1]- NxM.for[1:108,i-1]*exM.for[1:108,i-1]
@@ -385,7 +379,7 @@ for(i in 2:36){
     NxM.for[1,i-1]*0.5*ixM.for[1,i-1]-
     NxM.for[1,i-1]*exM.for[1,i-1]
   
-  #Poblacion a mitad año
+  #Poblacion a mitad aÃ±o
   NxM.for[,i]<-0.5*(PxM.for[,i-1]+PxM.for[,i])
   
 }
@@ -397,7 +391,7 @@ PxM.for<-round(PxM.for,0)
 NxF.for<-round(NxF.for,0)
 NxM.for<-round(NxM.for,0)
 
-#Total Poblacion a mitad de año hombres y mujeres
+#Total Poblacion a mitad de aÃ±o hombres y mujeres
 colSums(NxM.for)+colSums(NxF.for)
 colSums(PxM.for)+colSums(PxF.for)
 
@@ -416,7 +410,7 @@ PxF.for.T<-colSums(PxF.for)
 PxM.T<-(PxM.T[-c(46:47)])
 PxF.T<-(PxF.T[-c(46:47)])
 
-Px.dat<-data.frame(año=c(1970:2050),
+Px.dat<-data.frame(aÃ±o=c(1970:2050),
                    hombres=c(PxM.T, PxM.for.T),
                    mujeres=c(PxF.T, PxF.for.T))
 
